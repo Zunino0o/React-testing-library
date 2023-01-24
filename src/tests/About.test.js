@@ -4,10 +4,6 @@ import renderWithRouter from './helpers/renderWithRouter';
 import { About } from '../pages';
 
 describe('Teste o componente <About.js />', () => {
-//   test('A página contém as informações sobre a Pokédex', () => {
-//     renderWithRouter(<About />);
-//   });
-
   test('A página contém um heading h2 com o texto About Pokédex', () => {
     renderWithRouter(<About />);
 
