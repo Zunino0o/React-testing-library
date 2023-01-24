@@ -5,6 +5,8 @@ import renderWithRouter from './helpers/renderWithRouter';
 import App from '../App';
 import pokemonList from '../data';
 
+// const typesArr = pokemonList.map((pkm) => pkm.type);
+
 describe('Teste o componente <Pokedex.js />', () => {
   test('A página contém um heading h2 com o texto Encountered Pokémon', () => {
     renderWithRouter(<App />);
@@ -36,6 +38,7 @@ describe('Teste o componente <Pokedex.js />', () => {
       userEvent.click(allBtn);
       const pika = screen.getByText(/pikachu/i);
       expect(pika.textContent).toBe(pokemonList[0].name);
+      expect(pika).toBeInTheDocument();
 
       const nextBtn = screen.getByRole('button', {
         name: /próximo pokémon/i,
@@ -46,31 +49,88 @@ describe('Teste o componente <Pokedex.js />', () => {
         const pkm = screen.getByText(name);
         // console.log(pkm.textContent, name, index);
         expect(pkm.textContent).toBe(name);
+        expect(pkm).toBeInTheDocument();
+        // console.log(prvPkmName.name, name);
         if (index === pokemonList.length - 1) {
           userEvent.click(nextBtn);
           //   console.log(pkm.textContent, name);
           expect(pika.textContent).toBe(pokemonList[0].name);
+          expect(pika).toBeInTheDocument();
         }
       }
     });
   });
 
-  test('é mostrado apenas um Pokémon por vez', () => {});
+  // USAR screen.queryByText(prevPkm)
 
   describe('A Pokédex tem os botões de filtro', () => {
-    test('Deve existir um botão de filtragem para cada tipo de Pokémon, sem repetição', () => {});
+    test('Deve existir um botão de filtragem para cada tipo de Pokémon, sem repetição', () => {
+      // console.log(typesArr);
+      renderWithRouter(<App />);
+      const TypeButtons = screen.getAllByTestId('pokemon-type-button');
+      // console.log(button.length);
+      TypeButtons.forEach((btn) => {
+        expect(btn).toBeInTheDocument();
+      });
+    });
 
-    test('A partir da seleção de um botão de tipo, a Pokédex deve circular somente pelos Pokémon daquele tipo', () => {});
+    test('A partir da seleção de um botão de tipo, a Pokédex deve circular somente pelos Pokémon daquele tipo', () => {
+      renderWithRouter(<App />);
+      const TypeButtons = screen.getAllByTestId('pokemon-type-button');
+      const nextBtn = screen.getByRole('button', {
+        name: /próximo pokémon/i,
+      });
 
-    test('O texto do botão deve corresponder ao nome do tipo', () => {});
+      TypeButtons.forEach((btn) => {
+        userEvent.click(btn);
+        const typeName = btn.innerHTML;
+        console.log(typeName);
+        const pkmByType = pokemonList.filter((pkm) => pkm.type === typeName);
+        console.log(pkmByType.length);
 
-    test('O botão All precisa estar sempre visível', () => {});
+        pkmByType.forEach((pkm) => {
+          const pkmType = screen.getByTestId('pokemon-type').innerHTML;
+          console.log(pkm.name, pkmType);
+          expect(pkmType).toBe(typeName);
+          userEvent.click(nextBtn);
+        });
+      });
+    });
+
+    test('O botão All precisa estar sempre visível', () => {
+      renderWithRouter(<App />);
+
+      const allBtn = screen.getByRole('button', {
+        name: /all/i,
+      });
+
+      expect(allBtn).toBeInTheDocument();
+    });
   });
 
-  describe('Teste se a Pokédex contém um botão para resetar o filtro', () => {
-    test('O texto do botão deve ser All', () => {});
+  describe('A Pokédex contém um botão para resetar o filtro', () => {
+    test('O texto do botão deve ser All & deverá mostrar os Pokémon normalmente (sem filtros) quando o botão All for clicado', () => {
+      renderWithRouter(<App />);
 
-    test('A Pokedéx deverá mostrar os Pokémon normalmente (sem filtros) quando o botão All for clicado', () => {});
+      const allBtn = screen.getByRole('button', {
+        name: /all/i,
+      });
+
+      const nextBtn = screen.getByRole('button', {
+        name: /próximo pokémon/i,
+      });
+
+      expect(allBtn.innerHTML).toBe('All');
+
+      userEvent.click(allBtn);
+
+      pokemonList.forEach((pkm) => {
+        const { name } = pkm;
+        const pkmCard = screen.getByText(name);
+        expect(pkmCard).toBeInTheDocument();
+        userEvent.click(nextBtn);
+      });
+    });
 
     test('Ao carregar a página, o filtro selecionado deverá ser All', () => {});
   });
