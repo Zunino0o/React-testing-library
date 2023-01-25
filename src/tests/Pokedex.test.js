@@ -5,7 +5,7 @@ import renderWithRouter from './helpers/renderWithRouter';
 import App from '../App';
 import pokemonList from '../data';
 
-// const typesArr = pokemonList.map((pkm) => pkm.type);
+const typesArr = ['Electric', 'Fire', 'Bug', 'Poison', 'Psychic', 'Normal', 'Dragon'];
 
 describe('Teste o componente <Pokedex.js />', () => {
   test('A página contém um heading h2 com o texto Encountered Pokémon', () => {
@@ -31,12 +31,7 @@ describe('Teste o componente <Pokedex.js />', () => {
   test('Os próximos Pokémon da lista devem ser mostrados, um a um, ao clicar sucessivamente no botão & O primeiro Pokémon da lista deve ser mostrado ao clicar no botão, se estiver no último Pokémon da lista', () => {
     renderWithRouter(<App />);
 
-    const allBtn = screen.getByRole('button', {
-      name: /all/i,
-    });
-    userEvent.click(allBtn);
     const pika = screen.queryByText(/pikachu/i);
-    expect(pika.textContent).toBe(pokemonList[0].name);
     expect(pika).toBeInTheDocument();
 
     const nextBtn = screen.getByRole('button', {
@@ -48,7 +43,7 @@ describe('Teste o componente <Pokedex.js />', () => {
       const { name } = pokemonList[index];
       const pkm = screen.getByText(name);
       const prevPkm = screen.queryByText(pokemonList[index - 1].name);
-      // console.log(pkm.textContent, name, index);
+      // console.log(name, prevPkm, index);
       expect(pkm.textContent).toBe(name);
       expect(pkm).toBeInTheDocument();
       expect(prevPkm).not.toBeInTheDocument();
@@ -67,8 +62,9 @@ describe('Teste o componente <Pokedex.js />', () => {
     renderWithRouter(<App />);
     const TypeButtons = screen.getAllByTestId('pokemon-type-button');
     // console.log(button.length);
-    TypeButtons.forEach((btn) => {
+    TypeButtons.forEach((btn, index) => {
       expect(btn).toBeInTheDocument();
+      expect(btn.innerHTML).toBe(typesArr[index]);
     });
   });
 
@@ -118,6 +114,9 @@ describe('Teste o componente <Pokedex.js />', () => {
 
     expect(allBtn.innerHTML).toBe('All');
 
+    userEvent.click(screen.getByRole('button', {
+      name: /normal/i,
+    }));
     userEvent.click(allBtn);
 
     pokemonList.forEach((pkm) => {
